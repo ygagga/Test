@@ -17,31 +17,34 @@ local Window = Fluent:CreateWindow({
 -- Criando Abas
 local Tabs = {
     Troll = Window:AddTab({ Title = "🤡 Troll", Icon = "alert" }),
-    Hacks = Window:AddTab({ Title = "⚡ Hacks", Icon = "zap" }),
     About = Window:AddTab({ Title = "ℹ️ Sobre", Icon = "info" })
 }
 
 -----------------------------------------------------------
--- 🤡 Troll (ESP + Matar Jogador)
+-- 🤡 Troll (Selecionar Jogador + Matar)
 -----------------------------------------------------------
 Tabs.Troll:AddSection("Trollando no servidor!")
 
--- Lista de jogadores para seleção
-local jogadores = {}
 local jogadorSelecionado = nil
+local dropdownJogadores
 
--- Atualiza a lista de jogadores
+-- Atualiza a lista de jogadores automaticamente
 local function atualizarListaJogadores()
-    jogadores = {}
+    local jogadores = {}
     for _, player in pairs(game.Players:GetPlayers()) do
         table.insert(jogadores, player.Name)
+    end
+
+    -- Atualiza a Dropdown com os jogadores atuais
+    if dropdownJogadores then
+        dropdownJogadores:SetValues(jogadores)
     end
 end
 
 -- Criar Dropdown de seleção de jogador
-Tabs.Troll:AddDropdown("Selecionar Jogador", {
+dropdownJogadores = Tabs.Troll:AddDropdown("Selecionar Jogador", {
     Title = "Escolha um jogador",
-    Values = jogadores,
+    Values = {},
     Multi = false,
     Callback = function(valor)
         jogadorSelecionado = valor
@@ -50,6 +53,10 @@ Tabs.Troll:AddDropdown("Selecionar Jogador", {
 
 -- Atualiza a lista de jogadores ao abrir a GUI
 atualizarListaJogadores()
+
+-- Atualiza a lista automaticamente quando um jogador entra ou sai
+game.Players.PlayerAdded:Connect(atualizarListaJogadores)
+game.Players.PlayerRemoving:Connect(atualizarListaJogadores)
 
 -- Botão para matar jogador selecionado
 Tabs.Troll:AddButton({
