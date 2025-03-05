@@ -14,7 +14,7 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
--- Criando a aba Troll
+-- Criando a aba Troll (agora sempre inicializada corretamente)
 local TrollTab = Window:AddTab({ Title = "🤡 Troll", Icon = "alert" })
 
 -- 🔥 APLICAR ACESSÓRIO AUTOMÁTICO 🔥
@@ -31,13 +31,16 @@ end
 
 applyAccessory() -- Aplica automaticamente ao abrir o script
 
+-----------------------------------------------------------
 -- 🔍 ESP (Nome e Distância)
+-----------------------------------------------------------
 local espEnabled = false
 local function toggleESP()
     espEnabled = not espEnabled
-    if espEnabled then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= game.Players.LocalPlayer then
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= game.Players.LocalPlayer then
+            if espEnabled then
+                if not v.Character or not v.Character:FindFirstChild("Head") then continue end
                 local bill = Instance.new("BillboardGui", v.Character.Head)
                 bill.Name = "ESP"
                 bill.Size = UDim2.new(0, 200, 0, 50)
@@ -58,12 +61,10 @@ local function toggleESP()
                         nameTag.Text = v.Name .. " [" .. dist .. "m]"
                     end
                 end)
-            end
-        end
-    else
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v.Character and v.Character.Head:FindFirstChild("ESP") then
-                v.Character.Head.ESP:Destroy()
+            else
+                if v.Character and v.Character.Head:FindFirstChild("ESP") then
+                    v.Character.Head.ESP:Destroy()
+                end
             end
         end
     end
@@ -75,7 +76,9 @@ TrollTab:AddButton({
     Callback = toggleESP
 })
 
+-----------------------------------------------------------
 -- ⚡ SUPER VELOCIDADE E PULO INFINITO
+-----------------------------------------------------------
 local speedEnabled = false
 TrollTab:AddButton({
     Title = "Ativar/Desativar Super Velocidade ⚡",
@@ -98,7 +101,9 @@ TrollTab:AddButton({
     end
 })
 
+-----------------------------------------------------------
 -- 🚪 ATRAVESSAR PAREDES
+-----------------------------------------------------------
 local noClipEnabled = false
 TrollTab:AddButton({
     Title = "Ativar/Desativar NoClip 🚪",
@@ -116,7 +121,9 @@ TrollTab:AddButton({
     end
 })
 
+-----------------------------------------------------------
 -- 🎭 COPIAR SKIN DE OUTRO JOGADOR
+-----------------------------------------------------------
 TrollTab:AddTextbox({
     Title = "Copiar Skin de Jogador",
     Placeholder = "Digite o nome do jogador",
@@ -133,7 +140,9 @@ TrollTab:AddTextbox({
     end
 })
 
+-----------------------------------------------------------
 -- 🏃 SELECIONAR JOGADOR PARA TELEPORTAR, SPECTAR OU MATAR
+-----------------------------------------------------------
 local selectedPlayer
 TrollTab:AddDropdown({
     Title = "Selecionar Jogador",
@@ -186,4 +195,3 @@ TrollTab:AddButton({
         end
     end
 })
-
