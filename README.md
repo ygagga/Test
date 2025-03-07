@@ -1,33 +1,72 @@
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-
-local player = Players.LocalPlayer
-
--- Função para encontrar o jogador pelo nome
-local function getPlayerByName(targetName)
-    for _, plr in pairs(Players:GetPlayers()) do
-        if string.lower(plr.Name) == string.lower(targetName) then
-            return plr
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local UserInputService = game:GetService("UserInputService")
+local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
+local Folder = Instance.new("Folder", game:GetService("Workspace"))
+local Part = Instance.new("Part", Folder)
+local Attachment1 = Instance.new("Attachment", Part)
+Part.Anchored = true
+Part.CanCollide = false
+Part.Transparency = 1
+local Updated = Mouse.Hit + Vector3.new(0, 5, 0)
+local NetworkAccess = coroutine.create(function()
+    settings().Physics.AllowSleep = false
+    while game:GetService("RunService").RenderStepped:Wait() do
+        for _, Players in next, game:GetService("Players"):GetPlayers() do
+            if Players ~= game:GetService("Players").LocalPlayer then
+                Players.MaximumSimulationRadius = 0 
+                sethiddenproperty(Players, "SimulationRadius", 0) 
+            end 
         end
-    end
-    return nil
-end
-
--- Função para puxar partes do mapa para o jogador
-local function pullMapToPlayer(targetName)
-    local targetPlayer = getPlayerByName(targetName)
-    
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local targetPosition = targetPlayer.Character.HumanoidRootPart.Position
-        
-        for _, part in pairs(Workspace:GetDescendants()) do
-            if part:IsA("BasePart") and part.Anchored then
-                part.Anchored = false -- Destrava o objeto para puxar
-                part.CFrame = CFrame.new(targetPosition + Vector3.new(math.random(-5, 5), math.random(1, 5), math.random(-5, 5)))
+        game:GetService("Players").LocalPlayer.MaximumSimulationRadius = math.pow(math.huge,math.huge)
+        setsimulationradius(math.huge) 
+    end 
+end) 
+coroutine.resume(NetworkAccess)
+local function ForcePart(v)
+    if v:IsA("Part") and v.Anchored == false and v.Parent:FindFirstChild("Humanoid") == nil and v.Parent:FindFirstChild("Head") == nil and v.Name ~= "Handle" then
+        Mouse.TargetFilter = v
+        for _, x in next, v:GetChildren() do
+            if x:IsA("BodyAngularVelocity") or x:IsA("BodyForce") or x:IsA("BodyGyro") or x:IsA("BodyPosition") or x:IsA("BodyThrust") or x:IsA("BodyVelocity") or x:IsA("RocketPropulsion") then
+                x:Destroy()
             end
         end
+        if v:FindFirstChild("Attachment") then
+            v:FindFirstChild("Attachment"):Destroy()
+        end
+        if v:FindFirstChild("AlignPosition") then
+            v:FindFirstChild("AlignPosition"):Destroy()
+        end
+        if v:FindFirstChild("Torque") then
+            v:FindFirstChild("Torque"):Destroy()
+        end
+        v.CanCollide = false
+        local Torque = Instance.new("Torque", v)
+        Torque.Torque = Vector3.new(100000, 100000, 100000)
+        local AlignPosition = Instance.new("AlignPosition", v)
+        local Attachment2 = Instance.new("Attachment", v)
+        Torque.Attachment0 = Attachment2
+        AlignPosition.MaxForce = 9999999999999999
+        AlignPosition.MaxVelocity = math.huge
+        AlignPosition.Responsiveness = 200
+        AlignPosition.Attachment0 = Attachment2 
+        AlignPosition.Attachment1 = Attachment1
     end
 end
-
--- **Executar a função**
-pullMapToPlayer("NomeDoJogador") -- Substitua pelo nome do jogador alvo
+for _, v in next, game:GetService("Workspace"):GetDescendants() do
+    ForcePart(v)
+end
+game:GetService("Workspace").DescendantAdded:Connect(function(v)
+    ForcePart(v)
+end)
+UserInputService.InputBegan:Connect(function(Key, Chat)
+    if Key.KeyCode == Enum.KeyCode.E and not Chat then
+       Updated = Mouse.Hit + Vector3.new(0, 5, 0)
+    end
+end)
+spawn(function()
+    while game:GetService("RunService").RenderStepped:Wait() do
+        Attachment1.WorldCFrame = Updated
+    end
+end)
