@@ -149,6 +149,44 @@ MusicTab:AddButton({
 })
 
 --------------------------------------
+-- 💻 Aba Hacks (Jump Power e Wallhack)
+--------------------------------------
+
+HacksTab:AddSection({"Hacks de Jogador"})
+
+-- **Jump Power Slider**
+HacksTab:AddSlider({
+    Name = "Jump Power",
+    Min = 50,
+    Max = 200,
+    Default = 50,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character:WaitForChild("Humanoid").JumpPower = value
+    end
+})
+
+-- **Wallhack Toggle**
+HacksTab:AddToggle({
+    Name = "Wallhack",
+    Default = false,
+    Callback = function(value)
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        local humanoid = character:WaitForChild("Humanoid")
+        local camera = game.Workspace.CurrentCamera
+
+        -- Habilita/desabilita o Wallhack
+        if value then
+            camera.CameraType = Enum.CameraType.Scriptable
+            character:WaitForChild("HumanoidRootPart").Transparency = 0.7
+        else
+            camera.CameraType = Enum.CameraType.Custom
+            character:WaitForChild("HumanoidRootPart").Transparency = 0
+        end
+    end
+})
+
+--------------------------------------
 -- 🧑‍💻 SCRIPTS (Executar Scripts Extras)
 --------------------------------------
 ScriptsTab:AddSection({"Executar Scripts"})
