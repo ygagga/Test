@@ -12,12 +12,13 @@ local Window = Library:MakeWindow({
 -- Adicionar botão para minimizar com a logo personalizada
 Window:AddMinimizeButton({
     Button = {
-        Image = "rbxassetid://10511856020"
+        Image = "rbxassetid://10180536602"
     },
     UICorner = {true,
         CornerRadius = UDim.new(0.5, 0)
     },
-    UIStroke = {false}
+    UIStroke = {false},
+    Size = UDim2.new(0, 40, 0, 40)  -- Aumentando o tamanho do quadrado
 })
 
 -- Criar as Abas (Tabs)
