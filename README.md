@@ -9,22 +9,32 @@ local Window = Library:MakeWindow({
     Flags = "ZenithCore_Config"
 })
 
--- Criar as Abas
-local TrollTab = Window:MakeTab({ Name = "Troll", Icon = "Home" })
-local MusicTab = Window:MakeTab({ Name = "Música", Icon = "Music" })
-local HacksTab = Window:MakeTab({ Name = "Hacks", Icon = "Bolt" })
-local ScriptsTab = Window:MakeTab({ Name = "Scripts", Icon = "Code" })
-local AboutTab = Window:MakeTab({ Name = "Sobre", Icon = "Info" })
+-- Adicionar botão para minimizar com a logo personalizada
+Window:AddMinimizeButton({
+    Button = {
+        Image = "rbxassetid://10511856020"
+    },
+    UICorner = {true,
+        CornerRadius = UDim.new(0.5, 0)
+    },
+    UIStroke = {false}
+})
+
+-- Criar as Abas (Tabs)
+local TrollTab = Window:MakeTab({Name = "Troll", Icon = "Skull"})
+local MusicTab = Window:MakeTab({Name = "Música", Icon = "Music"})
+local HacksTab = Window:MakeTab({Name = "Hacks", Icon = "Lightning"})
+local ScriptsTab = Window:MakeTab({Name = "Scripts", Icon = "Code"})
+local AboutTab = Window:MakeTab({Name = "Sobre", Icon = "Info"})
 
 -----------------------------------------------------------
--- 🤡 TROLL
+-- 🤡 TROLL (Teleportar, Espectar, Matar)
 -----------------------------------------------------------
+TrollTab:AddSection({"Controle de Jogadores"})
+
 local selectedPlayer = ""
 
-TrollTab:AddSection({ "Controle de Jogadores" })
-
-TrollTab:AddTextBox({
-    "Nome do Jogador", "", "Digite o nome do jogador",
+TrollTab:AddTextBox({"Nome do Jogador", "", "Digite o nome do jogador",
     Callback = function(value)
         selectedPlayer = value
     end
@@ -33,11 +43,17 @@ TrollTab:AddTextBox({
 TrollTab:AddButton({
     Name = "Teleportar Todos para Mim",
     Callback = function()
-        for _, target in pairs(game.Players:GetPlayers()) do
-            if target.Character and target ~= game.Players.LocalPlayer then
-                local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
-                if targetRoot then
-                    targetRoot.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local players = game:GetService("Players")
+        local localPlayer = players.LocalPlayer
+        local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+        if root then
+            for _, target in pairs(players:GetPlayers()) do
+                if target.Character and target ~= localPlayer then
+                    local targetRoot = target.Character:FindFirstChild("HumanoidRootPart")
+                    if targetRoot then
+                        targetRoot.CFrame = root.CFrame
+                    end
                 end
             end
         end
@@ -47,7 +63,9 @@ TrollTab:AddButton({
 TrollTab:AddButton({
     Name = "Espectar Jogador",
     Callback = function()
-        local target = game.Players:FindFirstChild(selectedPlayer)
+        local players = game:GetService("Players")
+        local target = players:FindFirstChild(selectedPlayer)
+
         if target and target.Character then
             game.Workspace.CurrentCamera.CameraSubject = target.Character:FindFirstChildOfClass("Humanoid")
         end
@@ -61,14 +79,14 @@ TrollTab:AddButton({
     end
 })
 
------------------------------------------------------------
--- 🎶 MÚSICA
------------------------------------------------------------
+--------------------------------------
+-- 🎶 Aba Música (Tocar para Todos)
+--------------------------------------
+MusicTab:AddSection({"Escolha sua Música"})
+
 local globalMusicId = ""
 local globalSound
 local isLoopEnabled = false
-
-MusicTab:AddSection({ "Escolha sua Música" })
 
 MusicTab:AddToggle({
     Name = "Tocar em Loop 🔁",
@@ -78,8 +96,7 @@ MusicTab:AddToggle({
     end
 })
 
-MusicTab:AddTextBox({
-    "ID da Música Global", "", "Digite o ID...",
+MusicTab:AddTextBox({"ID da Música Global", "", "Digite o ID...",
     Callback = function(value)
         globalMusicId = value
     end
@@ -88,11 +105,7 @@ MusicTab:AddTextBox({
 local musicIds = {
     ["🎵 Música 1"] = "6454199333",
     ["🎵 Música 2"] = "6427245762",
-    ["🎵 Música 3"] = "6489326185",
-    ["🎵 Música 4"] = "6433157341",
-    ["🎵 Música 5"] = "6436089393",
-    ["🎵 Música 6"] = "18841894272",
-    ["🎵 Música 7"] = "16190784547"
+    ["🎵 Música 3"] = "6489326185"
 }
 
 for name, id in pairs(musicIds) do
@@ -134,31 +147,10 @@ MusicTab:AddButton({
     end
 })
 
------------------------------------------------------------
--- 💻 HACKS (Anti Sit)
------------------------------------------------------------
-local antiSitEnabled = false
-
-HacksTab:AddSection({ "Anti Sit (Desativar/Sentado)" })
-
-HacksTab:AddToggle({
-    Name = "Ativar/Desativar Anti Sit 🚫",
-    Default = false,
-    Callback = function(value)
-        antiSitEnabled = value
-        if antiSitEnabled then
-            game.Players.LocalPlayer.Character.Humanoid.Sit = false
-            game.Players.LocalPlayer.Character.Humanoid.Seated:Connect(function()
-                game.Players.LocalPlayer.Character.Humanoid.Sit = false
-            end)
-        end
-    end
-})
-
------------------------------------------------------------
--- 🧑‍💻 SCRIPTS EXTRAS
------------------------------------------------------------
-ScriptsTab:AddSection({ "Executar Scripts" })
+--------------------------------------
+-- 🧑‍💻 SCRIPTS (Executar Scripts Extras)
+--------------------------------------
+ScriptsTab:AddSection({"Executar Scripts"})
 
 ScriptsTab:AddButton({
     Name = "Fly Script ✈️",
@@ -184,6 +176,6 @@ ScriptsTab:AddButton({
 -----------------------------------------------------------
 -- ℹ️ SOBRE
 -----------------------------------------------------------
-AboutTab:AddSection({ "Criado por Shelby, user discord: snobodj" })
+AboutTab:AddSection({"Criado por Shelby, user discord: snobodj"})
 
-AboutTab:AddParagraph({ "Troll Hub 🤡", "Criado para trollar no Brookhaven RP! Divirta-se!" })
+AboutTab:AddParagraph({"Troll Hub 🤡", "Criado para trollar no Brookhaven RP! Divirta-se!"})
